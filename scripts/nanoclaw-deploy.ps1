@@ -91,6 +91,10 @@ if ($repoUrl -match "github\.com/([^/]+)/([^/]+)") { $repoOwner = $matches[1]; $
 Write-Host "Ensuring Vercel project and env (link repo via API like Habit)..." -ForegroundColor Yellow
 & "$scriptDir\vercel-create-project.ps1" -ProjectName $AppName -RepoOwner $repoOwner -RepoName $repoName -RootDirectory "frontend" 2>&1
 if ($LASTEXITCODE -ne 0) { Write-Host "Vercel create/link failed; continuing with local deploy." -ForegroundColor Yellow; $LASTEXITCODE = 0 }
+# Set Vercel env vars via API (ensures team project gets API_BACKEND_URL + JWT_SECRET; CLI often targets wrong project)
+$ErrorActionPreference = "Continue"
+& "$scriptDir\vercel-env-set-api.ps1" -ProjectName $AppName 2>&1 | Out-Null
+$ErrorActionPreference = "Stop"
 $env:API_BACKEND_URL = $backendUrl
 $env:JWT_SECRET = Ensure-Env "JWT_SECRET"
 if (-not $env:JWT_SECRET) { $env:JWT_SECRET = "habit-jwt-secret-change-me-min-32-chars-long" }
@@ -99,10 +103,6 @@ $vercelToken = Ensure-Env "VERCEL_TOKEN"
 $ErrorActionPreference = "Continue"
 try {
   $null = & npx vercel link --yes --project $AppName --token $vercelToken 2>&1
-  $null = & npx vercel env add API_BACKEND_URL production --value $backendUrl --yes --token $vercelToken 2>&1
-  $null = & npx vercel env add API_BACKEND_URL preview --value $backendUrl --yes --token $vercelToken 2>&1
-  $null = & npx vercel env add JWT_SECRET production --value $env:JWT_SECRET --yes --token $vercelToken 2>&1
-  $null = & npx vercel env add JWT_SECRET preview --value $env:JWT_SECRET --yes --token $vercelToken 2>&1
   Write-Host "Deploying frontend to Vercel..." -ForegroundColor Yellow
   $deployOut = & npx vercel deploy --prod --token $vercelToken --yes 2>&1 | Out-String
 } finally {

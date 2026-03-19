@@ -13,14 +13,31 @@ export async function POST(req: Request) {
     );
   }
   if (useBackend()) {
-    const res = await fetchBackend("/api/auth/login", {
-      method: "POST",
-      body: await req.text(),
-      headers: { "Content-Type": "application/json" },
-    });
-    const data = (await res.json()) as { ok?: boolean; token?: string; error?: string };
-    if (data.token) await setTokenCookie(data.token);
-    return NextResponse.json(data.ok ? { ok: true } : data, { status: res.status });
+    try {
+      const res = await fetchBackend("/api/auth/login", {
+        method: "POST",
+        body: await req.text(),
+        headers: { "Content-Type": "application/json" },
+      });
+      const text = await res.text();
+      let data: { ok?: boolean; token?: string; error?: string };
+      try {
+        data = text ? (JSON.parse(text) as { ok?: boolean; token?: string; error?: string }) : {};
+      } catch {
+        return NextResponse.json(
+          { error: "Backend returned invalid response. Check backend logs." },
+          { status: 502 }
+        );
+      }
+      if (data.token) await setTokenCookie(data.token);
+      return NextResponse.json(data.ok ? { ok: true } : data, { status: res.status });
+    } catch (e) {
+      console.error("Login backend error:", e);
+      return NextResponse.json(
+        { error: "Cannot reach auth server. Try again later." },
+        { status: 503 }
+      );
+    }
   }
   try {
     const { username, password } = await req.json();

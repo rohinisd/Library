@@ -1,3 +1,4 @@
+import logging
 import secrets
 from urllib.parse import urlencode
 
@@ -12,16 +13,25 @@ from dependencies import get_current_user
 from schemas import AuthResponse, LoginBody, RegisterBody
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
+log = logging.getLogger(__name__)
 
 
 @router.post("/register", response_model=AuthResponse)
 async def register(body: RegisterBody):
-    pool = await get_pool()
-    password_hash = None
-    if body.password:
-        from passlib.hash import bcrypt
-        password_hash = bcrypt.hash(body.password)
     try:
+        pool = await get_pool()
+    except RuntimeError as e:
+        if "DATABASE_URL" in str(e):
+            raise HTTPException(status_code=503, detail="Database not configured. Set DATABASE_URL on the backend.")
+        raise
+    except Exception as e:
+        log.exception("register get_pool: %s", e)
+        raise HTTPException(status_code=503, detail="Database unavailable. Try again later.")
+    try:
+        password_hash = None
+        if body.password:
+            from passlib.hash import bcrypt
+            password_hash = bcrypt.hash(body.password)
         row = await pool.fetchrow(
             """INSERT INTO users (username, password_hash, display_name)
                VALUES ($1, $2, $3)
@@ -30,39 +40,56 @@ async def register(body: RegisterBody):
             password_hash,
             body.displayName or body.username,
         )
+        payload = {
+            "userId": str(row["id"]),
+            "username": row["username"],
+            "displayName": row["display_name"] or row["username"],
+        }
+        token = sign_token(payload)
+        return AuthResponse(ok=True, token=token)
+    except HTTPException:
+        raise
     except Exception as e:
         if "unique" in str(e).lower() or "duplicate" in str(e).lower():
             raise HTTPException(status_code=400, detail="Username already taken")
-        raise HTTPException(status_code=400, detail=str(e))
-    payload = {
-        "userId": str(row["id"]),
-        "username": row["username"],
-        "displayName": row["display_name"] or row["username"],
-    }
-    token = sign_token(payload)
-    return AuthResponse(ok=True, token=token)
+        log.exception("register failed: %s", e)
+        raise HTTPException(status_code=503, detail="Registration failed. Try again later.")
 
 
 @router.post("/login", response_model=AuthResponse)
 async def login(body: LoginBody):
-    pool = await get_pool()
-    row = await pool.fetchrow(
-        "SELECT id, username, display_name, password_hash FROM users WHERE username = $1",
-        body.username,
-    )
-    if not row:
-        raise HTTPException(status_code=401, detail="Wrong username or password")
-    if row["password_hash"]:
-        from passlib.hash import bcrypt
-        if not bcrypt.verify(body.password, row["password_hash"]):
+    try:
+        pool = await get_pool()
+    except RuntimeError as e:
+        if "DATABASE_URL" in str(e):
+            raise HTTPException(status_code=503, detail="Database not configured. Set DATABASE_URL on the backend.")
+        raise
+    except Exception as e:
+        log.exception("login get_pool: %s", e)
+        raise HTTPException(status_code=503, detail="Database unavailable. Try again later.")
+    try:
+        row = await pool.fetchrow(
+            "SELECT id, username, display_name, password_hash FROM users WHERE username = $1",
+            body.username,
+        )
+        if not row:
             raise HTTPException(status_code=401, detail="Wrong username or password")
-    payload = {
-        "userId": str(row["id"]),
-        "username": row["username"],
-        "displayName": row["display_name"] or row["username"],
-    }
-    token = sign_token(payload)
-    return AuthResponse(ok=True, token=token)
+        if row["password_hash"]:
+            from passlib.hash import bcrypt
+            if not bcrypt.verify(body.password, row["password_hash"]):
+                raise HTTPException(status_code=401, detail="Wrong username or password")
+        payload = {
+            "userId": str(row["id"]),
+            "username": row["username"],
+            "displayName": row["display_name"] or row["username"],
+        }
+        token = sign_token(payload)
+        return AuthResponse(ok=True, token=token)
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.exception("login failed: %s", e)
+        raise HTTPException(status_code=503, detail="Login failed. Try again later.")
 
 
 @router.post("/logout")

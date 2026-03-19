@@ -22,7 +22,13 @@ export default function RegisterForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, displayName: displayName || username, password }),
       });
-      const data = await res.json();
+      let data: { error?: string } = {};
+      try {
+        data = await res.json();
+      } catch {
+        setError(res.status === 503 ? "Server not configured. Try again later." : "Sign up failed.");
+        return;
+      }
       if (!res.ok) {
         setError(data.error || "Sign up failed");
         return;

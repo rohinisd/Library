@@ -4,7 +4,12 @@ import { getSession } from "@/lib/auth";
 import RegisterForm from "./RegisterForm";
 
 export default async function RegisterPage() {
-  const session = await getSession();
+  let session = null;
+  try {
+    session = await getSession();
+  } catch {
+    // Avoid 500 if cookies/auth throws (e.g. edge runtime)
+  }
   if (session) redirect("/dashboard");
   return (
     <div className="min-h-screen flex flex-col">

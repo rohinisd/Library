@@ -79,3 +79,51 @@ Same pattern as Habit: repo existed and had Vercel app installed, so one run of 
 4. Give user the frontend URL and remind them to hard-refresh.
 
 All steps we did so far are part of this workflow: check link → fix in Dashboard or install app for new repo → deploy → verify.
+
+---
+
+## Lessons for next project (fine-tune automation)
+
+These issues were found during Library app automation; apply them when setting up the next project.
+
+### 1. Production URL ≠ `{projectName}.vercel.app` for team projects
+
+- If the Vercel project is under a **team**, production is at a URL like `{project}-{team-slug}.vercel.app` (e.g. `library-rohinidevan1989-4846s-projects.vercel.app`), not `library.vercel.app`.
+- **Action:** After deploy, get the real production URL from the API: `GET /v9/projects/{name}` → `targets.production.alias` (or `latestDeployments[0].alias`). Tell the user this URL; if they expect `projectName.vercel.app`, they may be looking at a different project (old template). To use the short domain, add it in Vercel → project → Settings → Domains.
+
+### 2. Vercel env vars: CLI often targets wrong project (team vs personal)
+
+- `vercel env add` from the frontend folder often updates the **personal** project or the wrong scope. The **team** project (where the app actually runs) then has no `API_BACKEND_URL` / `JWT_SECRET` → "Server not configured" on sign-in/sign-up.
+- **Action:** Use the **Vercel API** to set env vars: `POST /v10/projects/{idOrName}/env?teamId={teamId}&upsert=true` with body `{ key, value, type: "plain", target: ["production","preview"] }`. Get `teamId` from the project: if `project.accountId` starts with `team_`, use it. Run `.\scripts\vercel-env-set-api.ps1 -ProjectName <app>` so the correct project gets `API_BACKEND_URL` and `JWT_SECRET`. Nanoclaw-deploy should call this script every run.
+
+### 3. New app from folder with no git repo
+
+- If the codebase is a copy (e.g. paas-full-template) with no `.git`, there is no repo to link. Vercel create-with-repo will fail or link the wrong repo.
+- **Action:** Create GitHub repo (`github-create-repo.ps1 -Name <AppName>`), then `git init`, `git add .`, `git commit`, `git remote add origin`, `git push -u origin main`. Then run deploy; use repo from `git remote` for `vercel-create-project`.
+
+### 4. Vercel "install the GitHub integration" for new repo
+
+- First time a **new** repo (e.g. Library) is used in `vercel-create-project`, the API returns "install the GitHub integration" / "Install GitHub App".
+- **Action:** In `vercel-create-project.ps1`, catch this error, open `https://github.com/apps/vercel/installations/new`, print message, `exit 0` (do not throw). Nanoclaw continues with local deploy so the app still goes live. User adds the repo in the opened page, then re-runs deploy so the project is Git-linked.
+
+### 5. Render: "name already in use" (not only "already exists")
+
+- Creating a Render service that already exists can return "name: (library-api) already in use".
+- **Action:** In `render-setup-backend.ps1`, treat both "already exists" and "already in use" as “existing service”; look up service by name, sync env vars, trigger deploy, write `RENDER_BACKEND_SERVICE_ID` to `.env`.
+
+### 6. PowerShell and script robustness
+
+- Use `Write-Warning`, not `Write-Warn` (invalid cmdlet). In regex strings with `[ ]` or `|`, use **single quotes** to avoid PowerShell interpolation. Avoid non-ASCII dashes (e.g. en-dash) in script strings; use ASCII hyphen.
+
+### 7. After setting Vercel env vars, redeploy is required
+
+- New env vars apply only to **new** deployments. After running `vercel-env-set-api.ps1`, trigger a production deploy (e.g. `vercel-redeploy-from-git.ps1` or push to main) and tell the user to wait 1–2 min and hard-refresh.
+
+### 8. Summary checklist for “next project”
+
+- [ ] Repo exists and code is pushed (create repo + git init/push if folder is not a repo).
+- [ ] Vercel: create/link project (API or Dashboard); if new repo, user installs GitHub app for that repo once.
+- [ ] Set **API_BACKEND_URL** and **JWT_SECRET** on the **correct** Vercel project via API (`vercel-env-set-api.ps1`), then redeploy.
+- [ ] Confirm production URL (team projects: use URL from API, not `{name}.vercel.app`).
+- [ ] Render: handle "already in use"; sync env (e.g. FRONTEND_URL) and trigger deploy.
+- [ ] Document for user: real frontend URL, Google OAuth redirect URI, and “add domain in Vercel if you want projectName.vercel.app”.
