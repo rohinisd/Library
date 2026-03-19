@@ -11,7 +11,10 @@ from routers import auth, books, loans
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await get_pool()
+    try:
+        await get_pool()
+    except Exception:
+        pass  # App starts anyway; first request will get 503
     yield
     await close_pool()
 
@@ -51,6 +54,20 @@ app.include_router(loans.router)
 @app.get("/api/health")
 def health():
     return {"ok": True, "message": "Library API (FastAPI / Render)"}
+
+
+@app.get("/api/health/db")
+async def health_db():
+    """Check DB connection and users table. Returns error detail for debugging."""
+    try:
+        pool = await get_pool()
+        row = await pool.fetchrow("SELECT 1 FROM users LIMIT 1")
+        return {"ok": True, "db": "connected", "users_table": row is not None}
+    except Exception as e:
+        return JSONResponse(
+            status_code=503,
+            content={"ok": False, "error": str(e), "hint": "Set DATABASE_URL on Render and run migrations."},
+        )
 
 
 if __name__ == "__main__":

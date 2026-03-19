@@ -60,7 +60,11 @@ async def register(body: RegisterBody):
             log.exception("register failed (column missing): %s", e)
             raise HTTPException(status_code=503, detail="Database schema mismatch. Run migrations.")
         log.exception("register failed: %s", e)
-        raise HTTPException(status_code=503, detail="Registration failed. Try again later.")
+        # Expose first line of error (safe for connection/schema messages) so user can see cause
+        msg = str(e).split("\n")[0].strip()[:120]
+        if not msg:
+            msg = "Registration failed. Try again later."
+        raise HTTPException(status_code=503, detail=msg)
 
 
 @router.post("/login", response_model=AuthResponse)
