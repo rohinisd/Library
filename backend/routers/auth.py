@@ -50,8 +50,15 @@ async def register(body: RegisterBody):
     except HTTPException:
         raise
     except Exception as e:
-        if "unique" in str(e).lower() or "duplicate" in str(e).lower():
+        err = str(e).lower()
+        if "unique" in err or "duplicate" in err:
             raise HTTPException(status_code=400, detail="Username already taken")
+        if "relation" in err and "does not exist" in err:
+            log.exception("register failed (table missing): %s", e)
+            raise HTTPException(status_code=503, detail="Database schema not set up. Run migrations (see README).")
+        if "column" in err and "does not exist" in err:
+            log.exception("register failed (column missing): %s", e)
+            raise HTTPException(status_code=503, detail="Database schema mismatch. Run migrations.")
         log.exception("register failed: %s", e)
         raise HTTPException(status_code=503, detail="Registration failed. Try again later.")
 

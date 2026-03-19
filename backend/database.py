@@ -10,7 +10,11 @@ async def get_pool() -> asyncpg.Pool:
         url = os.environ.get("DATABASE_URL")
         if not url:
             raise RuntimeError("DATABASE_URL is not set")
-        _db_pool = await asyncpg.create_pool(url, min_size=1, max_size=10, command_timeout=60)
+        # Neon and cloud Postgres typically need SSL (URL often has ?sslmode=require)
+        kwargs = {"min_size": 1, "max_size": 10, "command_timeout": 60}
+        if "neon.tech" in url or "sslmode=require" in url:
+            kwargs["ssl"] = True
+        _db_pool = await asyncpg.create_pool(url, **kwargs)
     return _db_pool
 
 
