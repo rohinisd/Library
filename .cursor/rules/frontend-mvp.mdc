@@ -1,0 +1,13 @@
+---
+description: MVP frontend stack: shadcn/ui, Tailwind, Zod, React Hook Form. Use when building UI or forms.
+globs: "**/*.tsx,**/components/**/*.ts,**/lib/**/*.ts"
+alwaysApply: false
+---
+
+# Frontend MVP (Next.js + Vercel)
+
+- **UI**: Prefer **shadcn/ui** components. Reuse from `components/ui/`; add via `npx shadcn@latest add <component>`. Use **Tailwind** utility classes; avoid raw inline styles or one-off CSS modules.
+- **Forms**: Use **React Hook Form** with **Zod** for validation. Define a Zod schema, then `useForm<z.infer<typeof schema>>({ resolver: zodResolver(schema) })`. Map errors to inputs for a11y.
+- **Icons**: Prefer **Lucide React** (`lucide-react`).
+- **Types**: Strict TypeScript; no `any`. Use interfaces or types for props and API responses.
+- **Deployment**: Structure the app for **Vercel** (serverless): no long-running processes; use Route Handlers or Server Actions for API logic; env vars via Vercel project settings.

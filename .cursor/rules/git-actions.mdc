@@ -1,0 +1,13 @@
+---
+description: Git operations; agent may run git commands without asking permission.
+alwaysApply: true
+---
+
+# Git and GitHub
+
+- **Remote:** `origin` is set to `git@github.com:rohinisd/Habit.git` (SSH). No permission needed for push/pull.
+- You may run **git commands** whenever needed: `git status`, `git add`, `git commit`, `git push`, `git pull`, `git branch`, `git checkout`, `git merge`, `git fetch`, `git log`, etc. Do **not** ask for permission before running them.
+- When making changes that should be committed: add, commit with a clear message, and push. Use branch `main` unless the user specifies otherwise.
+- Commit messages should be short and descriptive (e.g. "Add login form", "Fix deploy script").
+- If the user asks to "push to GitHub", "commit and push", "save to git", or similar, run the appropriate git commands directly.
+- If HTTPS is ever required, `GITHUB_TOKEN` is in `.env` (do not commit `.env`).

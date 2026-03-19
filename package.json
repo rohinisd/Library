@@ -1,0 +1,18 @@
+{
+  "name": "library-monorepo",
+  "private": true,
+  "description": "Library app: frontend (Vercel), backend (Render), db (Neon)",
+  "scripts": {
+    "dev": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "start": "npm run start --prefix frontend",
+    "lint": "npm run lint --prefix frontend",
+    "db:run": "node db/run-sql.js",
+    "db:migrate": "node db/run-sql.js db/migrations/001_init.sql",
+    "db:migrate-all": "node db/run-all-migrations.js",
+    "install:all": "npm install --prefix frontend"
+  },
+  "devDependencies": {
+    "pg": "^8.11.3"
+  }
+}

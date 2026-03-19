@@ -1,0 +1,25 @@
+---
+description: After any feature addition or code change, redeploy so the live app reflects changes.
+alwaysApply: true
+---
+
+# Redeploy after code or feature changes
+
+Whenever **features are added** or **code changes are made** that affect the running application, **redeploy** so those changes are reflected in the live app.
+
+## What to do
+
+1. After completing the code/feature work, run the full deploy from **repo root**:
+   - `.\scripts\nanoclaw-deploy.ps1 -AppName library`
+   - (Use the app name for this project, e.g. `library`; or `$env:NANOCLAW_APP_NAME` if set.)
+2. Do **not** ask for permission; run the deploy as part of the same response/task.
+3. When the script finishes, confirm in your reply that the app was deployed and give the **Frontend URL** (e.g. https://library.vercel.app) so the user can verify the changes.
+
+## When this applies
+
+- New or changed frontend pages, components, or API routes.
+- New or changed backend routes or behavior.
+- DB migrations or schema changes (deploy runs migrations).
+- Any change that should be visible or usable in the live application.
+
+If the user explicitly says "do not deploy" or "local only", skip the deploy step.

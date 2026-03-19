@@ -1,0 +1,27 @@
+---
+description: End-to-end automation; create repo, deploy frontend/backend, DB without asking the user.
+alwaysApply: true
+---
+
+# Full automation playbook
+
+When the user says "create the app", "deploy end-to-end", "full deploy", or "create habits app and deploy", run these steps **in order** without asking for permission. Use scripts and env from project root; load `.env` via scripts that do it.
+
+## 1. Ensure GitHub repo exists
+- Run: `.\scripts\github-create-repo.ps1 -Name Habit`
+- If the repo already exists, script exits cleanly. Then ensure remote: `git remote add origin git@github.com:rohinisd/Habit.git` only if `git remote -v` shows no origin. Then: `git add .`, `git commit -m "..."` if there are changes, `git branch -M main`, `git push -u origin main`.
+
+## 2. Ensure Vercel project exists (frontend)
+- **One-time:** If Vercel is not yet linked to the GitHub repo, run `.\scripts\vercel-install-github.ps1` to open the install page; the user must click Install and select the repo (this cannot be automated via API with a user token).
+- Run: `.\scripts\vercel-create-project.ps1 -ProjectName habit -RepoOwner rohinisd -RepoName Habit`
+- Then deploy: `.\scripts\deploy.ps1` (or `npx vercel deploy --prod --token=$env:VERCEL_TOKEN --yes`). If the project has no frontend yet (no app/ or package.json with Next.js), skip Vercel deploy until the frontend exists.
+
+## 3. Neon (database)
+- **Ensure Neon project exists:** run `.\scripts\neon-create-project.ps1 -Name habit -UpdateEnv`. This creates a project via API and writes `DATABASE_URL` and `NEON_PROJECT_ID` to `.env`. If the account already has a project, use that: run `.\scripts\neon-connection-string.ps1 -UpdateEnv -Pooled` instead to refresh `DATABASE_URL`.
+- Then run migrations if any: `.\scripts\neon-run-sql.ps1 scripts\migrations\001_init.sql` (create the SQL file if the app needs tables).
+
+## 4. Render (backend, if app has a backend)
+- If the app has a backend (e.g. FastAPI in `backend/`): either use existing `RENDER_SERVICE_ID` (deploys that service) or create a new service: `.\scripts\render-create-service.ps1 -Name habit-api -RepoUrl https://github.com/rohinisd/Habit -Branch main -RootDir backend -DockerfilePath backend/Dockerfile`. Add the returned service ID to `.env` as `RENDER_SERVICE_ID`, then run `.\scripts\render-deploy.ps1`.
+
+## 5. Summary
+- Run commands in sequence. Do not ask "shall I run this?". If a step fails (e.g. repo exists, project exists), continue. After automation, report: repo URL, Vercel URL (if deployed), Render URL (if backend), Neon connected (if DB).

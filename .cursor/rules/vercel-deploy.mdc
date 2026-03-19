@@ -1,0 +1,11 @@
+---
+description: Vercel deployment; run deploys without human intervention using VERCEL_TOKEN.
+alwaysApply: true
+---
+
+# Vercel deployment
+
+- Deploy to production with: `.\scripts\deploy.ps1` (Windows) or `./scripts/deploy.sh` (Unix). Or: `npx vercel deploy --prod --token=$env:VERCEL_TOKEN --yes`.
+- **VERCEL_TOKEN** must be set (in Cursor env or in project `.env`). Do not commit `.env`.
+- When the user asks to deploy or to "push to production", run the deploy script. No need to ask for permission.
+- If the project is not yet linked, the user must run `vercel link` once (or set `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` in `.env`). After that, deploys are non-interactive.

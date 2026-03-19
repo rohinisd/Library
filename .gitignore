@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Env and secrets (never commit tokens)
+.env
+.env.local
+.env.*.local
+
+# Vercel
+.vercel
+
+# Build and cache
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+
+# Debug and logs
+npm-debug.log*
+.DS_Store
+.env*.local

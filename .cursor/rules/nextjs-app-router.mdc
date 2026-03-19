@@ -1,0 +1,29 @@
+---
+description: Next.js 14+ App Router, RSC, and Server Actions. Use for app/, layout, page, and API routes.
+globs: "**/app/**/*.{ts,tsx},**/next.config.*"
+alwaysApply: false
+---
+
+# Next.js App Router (Vercel-ready MVP)
+
+- Use **App Router** only: `app/` directory with `layout.tsx`, `page.tsx`, `route.ts`. Do not use `pages/` or `getServerSideProps`/`getStaticProps`.
+- Prefer **React Server Components (RSC)** by default. Add `'use client'` only for components that need hooks, event handlers, or browser APIs.
+- Use **Server Actions** for mutations: `async function action(formData: FormData)` in server components or in files with `'use server'`.
+- Use **next/image** for images; use **next/link** for internal links.
+- Keep **next.config.js/ts** minimal for Vercel: no custom server; use env and image domains as needed.
+
+## Quick patterns
+
+```tsx
+// app/page.tsx – server component
+export default async function Page() {
+  const data = await fetch(process.env.API_URL!);
+  return <List items={data} />;
+}
+
+// app/actions.ts
+'use server';
+export async function submitForm(formData: FormData) {
+  // validate, DB, redirect
+}
+```

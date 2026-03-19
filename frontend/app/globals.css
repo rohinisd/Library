@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --candy-pink: #FF6B9D;
+  --candy-mint: #7FDBDA;
+  --candy-lemon: #FFE66D;
+  --candy-grape: #C9B1BD;
+  --candy-sky: #81D4FA;
+  --candy-peach: #FFAB91;
+  --candy-lavender: #E1BEE7;
+}
+
+body {
+  @apply bg-gradient-to-br from-candy-sky via-candy-lavender to-candy-mint min-h-screen antialiased;
+}
+
+@keyframes rainbow-shift {
+  0%, 100% { filter: hue-rotate(0deg); }
+  50% { filter: hue-rotate(10deg); }
+}
+
+.animate-rainbow {
+  animation: rainbow-shift 4s ease-in-out infinite;
+}

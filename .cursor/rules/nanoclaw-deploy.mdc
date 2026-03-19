@@ -1,0 +1,30 @@
+---
+description: When user asks to deploy the app or for final access URLs, run nanoclaw and report URLs.
+alwaysApply: true
+---
+
+# Nanoclaw: one-shot deploy
+
+When the user says they want to **deploy the app**, **deploy habit**, **get final access URLs**, or **do everything and give me the URLs**, run the full deploy automatically and return the frontend and backend URLs.
+
+## What to do
+
+1. From the **repo root**, run: `.\scripts\nanoclaw-deploy.ps1`
+   - Optional: `.\scripts\nanoclaw-deploy.ps1 -AppName myapp` for a different app name.
+2. Do **not** ask for permission before running; execute it.
+3. If the script exits with an error about **Render repo not connected**, tell the user:
+   - "One-time step: open https://dashboard.render.com → New → Web Service → connect GitHub (if not already), then select this repo. Then say 'deploy' again." If GitHub is already connected to Render, creating the service is fully automated—no need to use the UI.
+4. When the script completes, reply with the **final access URLs** and **OAuth step** from the script output:
+   - **Frontend:** (URL from script)
+   - **Backend:** (URL from script)
+   - **Database:** Neon (DATABASE_URL in .env)
+   - **Google OAuth:** Tell the user to add this in Google Cloud Console → Credentials → their OAuth client → Authorized redirect URIs: `https://<backend-url>/api/auth/google/callback`
+
+## Prerequisites (user must have in .env once)
+
+- `NEON_API_KEY`
+- `RENDER_API_KEY`
+- `VERCEL_TOKEN`
+- Optional: `GITHUB_TOKEN` (and `gh` CLI) to set the DATABASE_URL Actions secret automatically.
+
+If the script fails due to a missing token, tell the user which variable to add to `.env` and that they can re-run by saying "deploy" again.

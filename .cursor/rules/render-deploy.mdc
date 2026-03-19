@@ -1,0 +1,11 @@
+---
+description: Render backend deploy; trigger deploys from CLI without asking permission.
+alwaysApply: true
+---
+
+# Render (backend / API)
+
+- Use **Render** for backend/API (e.g. FastAPI, Docker). Credentials: `RENDER_API_KEY` and `RENDER_SERVICE_ID` in `.env`. See `RENDER_SETUP.md`.
+- **Trigger deploy:** `.\scripts\render-deploy.ps1` or call Render API: `POST https://api.render.com/v1/services/{RENDER_SERVICE_ID}/deploys` with `Authorization: Bearer $env:RENDER_API_KEY`. Deploy runs on Render (builds from connected repo).
+- **List services:** `.\scripts\render-list-services.ps1` to see service IDs. Set `RENDER_SERVICE_ID` in `.env` (e.g. `srv-xxxx`) so the deploy script works.
+- Do **not** ask for permission before triggering a Render deploy. Execute when the project needs a backend deploy.

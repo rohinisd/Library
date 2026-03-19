@@ -1,0 +1,13 @@
+---
+description: Neon Postgres; create DBs, get connection details, update schema from CLI without asking.
+alwaysApply: true
+---
+
+# Neon (Postgres) database
+
+- Use **Neon** for all Postgres. `NEON_API_KEY` is in `.env`; optionally `NEON_PROJECT_ID`, `DATABASE_URL`. See `NEON_SETUP.md`.
+- **Create database:** `.\scripts\neon-create-db.ps1 -Name mydb`. Use when the project needs a new DB.
+- **Get details / connection string:** `.\scripts\neon-connection-string.ps1` (print). To fetch and write `DATABASE_URL` into `.env`: `.\scripts\neon-connection-string.ps1 -UpdateEnv` (use `-Pooled` for serverless/Vercel). Run after creating a DB or when `DATABASE_URL` is missing.
+- **List projects and databases:** `.\scripts\neon-list.ps1`.
+- **Update DB (tables, schema, migrations):** Put SQL in `db/migrations/*.sql` (e.g. `db/migrations/001_init.sql`). Run with `.\scripts\neon-run-sql.ps1 db\migrations\001_init.sql` or from repo root `node db/run-sql.js db/migrations/001_init.sql`. Requires `DATABASE_URL` in root `.env` (set via neon-connection-string.ps1 -UpdateEnv if needed). Create/alter tables, indexes, and schema as the project requires.
+- **Automation flow:** Create DB → get connection string (`neon-connection-string.ps1 -UpdateEnv -Pooled`) → run migrations (`neon-run-sql.ps1`). No permission prompts; execute as required by the project.

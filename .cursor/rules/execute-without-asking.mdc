@@ -1,0 +1,11 @@
+---
+description: Execute terminal commands and scripts directly; NEVER ask for Run or approval.
+alwaysApply: true
+---
+
+# Execute without asking
+
+- **NEVER** say "shall I run this?", "click Run to execute", "would you like me to run", or ask the user to approve/confirm running a command. **ALWAYS** run the command yourself in the same response.
+- When a task needs a terminal command, script, or deploy: **execute it immediately**. Do not list the command and wait; run it.
+- Run `npm`, `git`, `npx`, deploy scripts (`.\scripts\deploy.ps1`, `.\scripts\render-deploy.ps1`, etc.), and any other commands **without** requesting permission.
+- Only ask the user when you need information only they have (e.g. a password, or a decision like "which region?"). For routine runs, **just run it**.

@@ -1,0 +1,12 @@
+---
+description: Fly.io deploy and launch; run from CLI without asking permission.
+alwaysApply: true
+---
+
+# Fly.io
+
+- Use **Fly.io** for containerized apps. Credentials: `FLY_API_TOKEN` in `.env`; optionally `FLY_APP_NAME`. See `FLY_SETUP.md`.
+- **Deploy existing app:** `.\scripts\fly-deploy.ps1` or `fly deploy --access-token $env:FLY_API_TOKEN -y` (use `-a appname` or `FLY_APP_NAME` if needed). Requires `fly.toml` in project.
+- **Create and deploy new app:** `.\scripts\fly-launch.ps1 -Name myapp -Region ams`. Creates app and deploys; run from project root (Dockerfile or fly.toml).
+- **Other fly commands:** List apps (`fly apps list`), status (`fly status`), logs (`fly logs`), secrets (`fly secrets set`). Pass `--access-token $env:FLY_API_TOKEN` when using token auth. Load `.env` first (scripts do this).
+- Do **not** ask for permission before deploying or launching. Execute Fly.io tasks as required by the project.

@@ -1,0 +1,26 @@
+---
+description: Infrastructure model (PaaS not IaaS); reusable stack for any app.
+alwaysApply: true
+---
+
+# Infrastructure: PaaS stack (reusable for any app)
+
+## IaaS vs this stack
+
+- **IaaS** = raw VMs, networks, disks (e.g. AWS EC2, Azure VMs). You manage OS and runtimes. Use when you need full control.
+- **This project uses PaaS**: push code; the platform builds and runs it. No server/OS management. Good default for web apps.
+
+| Layer    | This stack        | IaaS alternative     |
+|----------|--------------------|------------------------|
+| Frontend | Vercel             | VM + Node + nginx     |
+| Backend  | Render (Docker)    | VM + Docker / K8s     |
+| Database | Neon (Postgres)    | VM + Postgres / RDS   |
+| CI/CD    | GitHub Actions     | Same or Jenkins on VM |
+
+## Reusable "one push deploys everything"
+
+Same pattern for **any** app: GitHub (source of truth) → Vercel (frontend) + Render (backend) + Neon (DB) + GitHub Actions (migrations on push to `main`). Project-specific: repo URL, service names, root dirs, env vars. Scripts accept overrides (e.g. `-ServiceName`, `-RepoUrl`) or `.env`: `GITHUB_REPO_URL`, `RENDER_BACKEND_SERVICE_NAME`.
+
+- **Backend setup:** `.\scripts\render-setup-backend.ps1` (defaults to this repo) or `-ServiceName myapp-api -RepoUrl https://github.com/you/MyApp`.
+- **Migrations:** `npm run db:migrate-all` (or GitHub Action with `DATABASE_URL` secret). Migrations live in `db/migrations/*.sql`.
+- Prefer keeping docs (e.g. INFRASTRUCTURE.md, AUTO_DEPLOY.md) in the repo; reference them for deploy and "for any app" steps.

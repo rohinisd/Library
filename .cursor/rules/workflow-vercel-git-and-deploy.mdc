@@ -1,0 +1,64 @@
+---
+description: Full deploy workflow including Vercel Git connection so the live app shows this repo's code.
+alwaysApply: true
+---
+
+# Workflow: Vercel Git connection and deploy (so features appear live)
+
+When the user says they **don't see features**, **only home page**, or **Sign in / Sign up missing** on the live site, the deployed app is likely serving code from a **different repo**. Follow this workflow.
+
+## 1. Check which repo is linked to the Vercel project
+
+From **repo root** run:
+
+```powershell
+.\scripts\vercel-list-projects.ps1
+.\scripts\vercel-project-info.ps1 -ProjectName library
+```
+
+(Use the actual project name if different, e.g. `habit` or the one that owns the frontend URL.)
+
+- If **"No Git repo connected"** or the linked repo is **not** this codebase → the live site will not show changes from this repo.
+- If the linked repo is correct → redeploy (step 4) and have the user hard-refresh.
+
+## 2. Connect the correct repo in Vercel (user or agent guidance)
+
+**The agent cannot open the Vercel Dashboard.** Either:
+
+- **Option A – User does it once:** Tell the user to:
+  1. Open **https://vercel.com/dashboard**
+  2. Open the project that serves the frontend URL (e.g. **library** or the name from step 1)
+  3. Go to **Settings → Git**
+  4. **Connect Git Repository** (or **Change**) and select the repo where **this** code lives (e.g. `paas-full-template` or `rohinisd/Habit` if this is that repo)
+  5. Set **Root Directory** to `frontend` if it’s a monorepo
+  6. Save. Then go to **Deployments** and trigger **Redeploy** for the latest commit, or push to `main` to auto-deploy
+
+- **Option B – Deploy from local (no Git link):** If the project is only deployed from this machine (no Git connected), then `.\scripts\nanoclaw-deploy.ps1 -AppName library` already deploys **local** code. In that case the project name used by `vercel link` must match the project that owns the URL (e.g. **library**). Run step 4.
+
+## 3. Ensure this code is what you want live
+
+- Code and features are in this repo (e.g. Sign in, Sign up, `/books`, dashboard).
+- After connecting the **correct** repo in Vercel and redeploying (or deploying from local), the live app will show that code.
+
+## 4. Redeploy after any code or Git connection change
+
+From **repo root**:
+
+```powershell
+.\scripts\nanoclaw-deploy.ps1 -AppName library
+```
+
+This runs migrations, Render setup (if repo connected there), and **Vercel deploy from the local `frontend` folder** (or triggers a Git deploy if the project is set to deploy on push). After deploy, give the user the **Frontend URL** (e.g. https://library.vercel.app) and ask them to **hard-refresh** (Ctrl+Shift+R) or open in incognito.
+
+## 5. If the project name is not "library"
+
+- Use the project name that actually owns the frontend URL (e.g. from `vercel-list-projects.ps1`).
+- Run `vercel-project-info.ps1 -ProjectName <that-name>` and deploy with that name: `.\scripts\nanoclaw-deploy.ps1 -AppName <that-name>`.
+- Or set `NANOCLAW_APP_NAME` in `.env` to that name so scripts use it by default.
+
+## Summary
+
+1. Run `vercel-list-projects.ps1` and `vercel-project-info.ps1 -ProjectName library` (or actual project name).
+2. If the linked repo is wrong or missing → user connects the correct repo in Vercel Dashboard (Settings → Git) and sets Root Directory to `frontend` if needed.
+3. Redeploy: `.\scripts\nanoclaw-deploy.ps1 -AppName library`.
+4. Share the frontend URL and remind user to hard-refresh.
