@@ -49,7 +49,7 @@ function Set-RenderEnvVars($sid) {
       try {
         Invoke-RestMethod -Uri "https://api.render.com/v1/services/$sid/env-vars/$key" -Headers $headers -Method Put -Body $body | Out-Null
         Write-Host "Set $key on Render" -ForegroundColor Green
-      } catch { Write-Warn "Could not set $key : $_" }
+      } catch { Write-Warning "Could not set $key : $_" }
     }
   }
 }
@@ -76,7 +76,8 @@ try {
   $serviceId = $sr.id
   Write-Host "Created service: $ServiceName ($serviceId)" -ForegroundColor Green
 } catch {
-  if ($_.ErrorDetails.Message -match "already exists") {
+  $errMsg = $_.ErrorDetails.Message -join ""
+  if ($errMsg -match "already exists|already in use") {
     Write-Host "$ServiceName already exists. Looking up service and syncing env vars..." -ForegroundColor Yellow
     $list = Invoke-RestMethod -Uri "https://api.render.com/v1/services?limit=100" -Headers $headers -Method Get
     $arr = @($list)
@@ -102,7 +103,7 @@ Set-RenderEnvVars $serviceId
 try {
   $dr = Invoke-RestMethod -Uri "https://api.render.com/v1/services/$serviceId/deploys" -Headers $headers -Method Post -Body "{}"
   Write-Host "Deploy triggered: $($dr.id)" -ForegroundColor Green
-} catch { Write-Warn "Deploy trigger failed: $_" }
+} catch { Write-Warning "Deploy trigger failed: $_" }
 
 # 4) Write service ID to .env
 $envPath = Join-Path $root ".env"

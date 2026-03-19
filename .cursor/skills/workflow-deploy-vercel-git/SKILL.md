@@ -52,11 +52,30 @@ Use the same project name as in step 1 (or set `NANOCLAW_APP_NAME` in `.env`). W
 - Confirm in Vercel **Deployments** that the latest deploy is from the **correct** repo and branch.
 - If the project has **Production Branch** set (e.g. `main`), push this repo’s `main` to trigger a Git deploy, or trigger **Redeploy** on the latest deployment.
 
+## New app from scratch (connect repo via API, like Habit)
+
+When the codebase is **not** yet a Git repo or uses a **new** repo (e.g. Library), do the following so Vercel links the project via API (no manual Dashboard Git step):
+
+1. **Create GitHub repo** (if needed):  
+   `.\scripts\github-create-repo.ps1 -Name Library`
+2. **Init git and push**:  
+   `git init`, `git add .`, `git commit -m "..."`, `git remote add origin https://github.com/rohinisd/Library.git`, `git push -u origin main`
+3. **Run full deploy**:  
+   `.\scripts\nanoclaw-deploy.ps1 -AppName library`  
+   - The script calls `vercel-create-project.ps1` with `RepoOwner`/`RepoName` from git remote (or defaults).  
+   - If Vercel returns "install the GitHub integration", the script **opens the Vercel GitHub App install page** and continues with a **local deploy** (so the app goes live from local code).
+4. **One-time: add the new repo to Vercel**  
+   In the opened page, select the **Library** (or your app) repo and complete the install.  
+   Then run **deploy again**: `.\scripts\nanoclaw-deploy.ps1 -AppName library`  
+   This time `vercel-create-project` will succeed and the project will be **linked to the repo** for Git-based production deploys.
+
+Same pattern as Habit: repo existed and had Vercel app installed, so one run of deploy linked the project. For a new repo, one extra step (install app for that repo, re-run deploy).
+
 ## Summary
 
 1. Run `vercel-list-projects.ps1` and `vercel-project-info.ps1 -ProjectName <app>` to see linked repo.
-2. User: Vercel Dashboard → project → Settings → Git → connect this repo, Root Directory `frontend` if monorepo.
+2. **Wrong/missing link:** User: Vercel Dashboard → project → Settings → Git → connect this repo, Root Directory `frontend` if monorepo. **Or** for a new repo: install Vercel app for that repo (script opens the page), then re-run deploy.
 3. Run `.\scripts\nanoclaw-deploy.ps1 -AppName <app>`.
 4. Give user the frontend URL and remind them to hard-refresh.
 
-All steps we did so far are part of this workflow: check link → fix in Dashboard if wrong → deploy → verify.
+All steps we did so far are part of this workflow: check link → fix in Dashboard or install app for new repo → deploy → verify.

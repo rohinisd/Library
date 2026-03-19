@@ -34,7 +34,14 @@ try {
   $r = Invoke-RestMethod -Uri $uri -Headers $headers -Method Post -Body $body
   Write-Host "Created Vercel project: $($r.name)" -ForegroundColor Green
 } catch {
-  if ($_.Exception.Response.StatusCode -eq 409 -or $_.ErrorDetails.Message -match "already exists") {
+  $errMsg = $_.ErrorDetails.Message -join ""
+  if ($_.Exception.Response.StatusCode -eq 409 -or $errMsg -match "already exists") {
     Write-Host "Vercel project '$ProjectName' already exists." -ForegroundColor Yellow
+  } elseif ($errMsg -match "install the GitHub integration|Install GitHub App") {
+    Write-Host "Vercel: Install GitHub app for repo $RepoOwner/$RepoName (one-time): https://github.com/apps/vercel" -ForegroundColor Yellow
+    Write-Host "Opening Vercel install page - select the '$RepoName' repo, then re-run deploy for Git-linked production." -ForegroundColor Cyan
+    Start-Process "https://github.com/apps/vercel/installations/new"
+    Write-Host "Continuing with local deploy now..." -ForegroundColor Yellow
+    exit 0
   } else { throw }
 }

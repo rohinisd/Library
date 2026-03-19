@@ -86,14 +86,11 @@ if (-not $backendUrl) {
 }
 
 # ----- 5) Vercel frontend -----
-$repoOwner = "rohinisd"; $repoName = "Habit"
+$repoOwner = "rohinisd"; $repoName = "Library"
 if ($repoUrl -match "github\.com/([^/]+)/([^/]+)") { $repoOwner = $matches[1]; $repoName = $matches[2] }
-Write-Host "Ensuring Vercel project and env..." -ForegroundColor Yellow
-try {
-  & "$scriptDir\vercel-create-project.ps1" -ProjectName $AppName -RepoOwner $repoOwner -RepoName $repoName -RootDirectory "frontend" 2>&1
-} catch {
-  Write-Host "Vercel project create/link skipped (install GitHub app at https://github.com/apps/vercel if needed). Deploying from local..." -ForegroundColor Yellow
-}
+Write-Host "Ensuring Vercel project and env (link repo via API like Habit)..." -ForegroundColor Yellow
+& "$scriptDir\vercel-create-project.ps1" -ProjectName $AppName -RepoOwner $repoOwner -RepoName $repoName -RootDirectory "frontend" 2>&1
+if ($LASTEXITCODE -ne 0) { Write-Host "Vercel create/link failed; continuing with local deploy." -ForegroundColor Yellow; $LASTEXITCODE = 0 }
 $env:API_BACKEND_URL = $backendUrl
 $env:JWT_SECRET = Ensure-Env "JWT_SECRET"
 if (-not $env:JWT_SECRET) { $env:JWT_SECRET = "habit-jwt-secret-change-me-min-32-chars-long" }
