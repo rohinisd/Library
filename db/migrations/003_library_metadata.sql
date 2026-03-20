@@ -10,6 +10,7 @@ COMMENT ON COLUMN books.shelf_location IS 'Call number / shelf label (e.g. Dewey
 
 -- Loan renewals (standard ILS: limited renewals per loan)
 ALTER TABLE loans ADD COLUMN IF NOT EXISTS renewal_count INT NOT NULL DEFAULT 0;
+ALTER TABLE loans DROP CONSTRAINT IF EXISTS loans_renewal_count_check;
 ALTER TABLE loans ADD CONSTRAINT loans_renewal_count_check CHECK (renewal_count >= 0 AND renewal_count <= 2);
 
 CREATE INDEX IF NOT EXISTS idx_books_pub_year ON books(publication_year);
