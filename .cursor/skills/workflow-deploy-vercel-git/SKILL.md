@@ -127,3 +127,17 @@ These issues were found during Library app automation; apply them when setting u
 - [ ] Confirm production URL (team projects: use URL from API, not `{name}.vercel.app`).
 - [ ] Render: handle "already in use"; sync env (e.g. FRONTEND_URL) and trigger deploy.
 - [ ] Document for user: real frontend URL, Google OAuth redirect URI, and “add domain in Vercel if you want projectName.vercel.app”.
+
+### 9. Auth (JWT + email/password) for every MVP
+
+- **Vercel** must have `API_BACKEND_URL` (Render FastAPI) and `JWT_SECRET` (same as Render) or login/register break with “Server not configured” or JWT errors.
+- **bcrypt** enforces **72 UTF-8 bytes** max; backend uses `auth_bcrypt.py` (direct `bcrypt` package). Do not reintroduce passlib for password hashing without truncating.
+- After auth code changes: redeploy **both** Render and Vercel (`nanoclaw-deploy.ps1`).
+
+### 10. Google OAuth for every MVP
+
+- **Human step:** Google Cloud Console — create Web OAuth client; **Authorized redirect URIs** = `https://<BACKEND_URL>/api/auth/google/callback` (backend, not frontend).
+- **Authorized JavaScript origins** = `FRONTEND_URL` (exact production URL, often the long `*.vercel.app` team URL).
+- **`.env`:** `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `FRONTEND_URL` — then `.\scripts\oauth-setup-render.ps1` (pushes to Render, migrates, **triggers deploy**).
+- UI: `/login` and `/register` show Google when `API_BACKEND_URL` is set; flow is `GET /api/auth/google` → backend → Google → backend callback → `FRONTEND_URL/api/auth/oauth-callback?token=...`.
+- Full reusable checklist: **skill `mvp-paas-auth-oauth`** (`.cursor/skills/mvp-paas-auth-oauth/SKILL.md`).

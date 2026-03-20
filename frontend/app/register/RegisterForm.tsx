@@ -3,8 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import GoogleSignInButton, { GoogleSignInDivider } from "@/components/GoogleSignInButton";
 
-export default function RegisterForm() {
+type Props = { googleSignInAvailable?: boolean };
+
+export default function RegisterForm({ googleSignInAvailable = false }: Props) {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -43,12 +46,18 @@ export default function RegisterForm() {
   }
 
   return (
-    <motion.form
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-sm space-y-4"
-      onSubmit={handleSubmit}
     >
+      {googleSignInAvailable && (
+        <>
+          <GoogleSignInButton label="Continue with Google" />
+          <GoogleSignInDivider />
+        </>
+      )}
+      <form className="space-y-4" onSubmit={handleSubmit}>
       <div>
         <label className="block text-sm font-bold text-gray-700 mb-1">Username</label>
         <input
@@ -91,6 +100,7 @@ export default function RegisterForm() {
       >
         {loading ? "..." : "Sign up"}
       </motion.button>
-    </motion.form>
+      </form>
+    </motion.div>
   );
 }

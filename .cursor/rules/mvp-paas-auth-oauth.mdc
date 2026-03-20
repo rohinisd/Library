@@ -1,0 +1,11 @@
+---
+description: Auth + Google OAuth for MVP projects using this template (JWT, Vercel/Render env, Google Console redirect URIs, oauth-setup-render.ps1).
+alwaysApply: false
+---
+
+# MVP auth and OAuth (template)
+
+- **Skill:** Read `.cursor/skills/mvp-paas-auth-oauth/SKILL.md` for the full checklist (reusable for every new MVP).
+- **Deploy:** After changing OAuth env vars, run `.\scripts\oauth-setup-render.ps1` (sets Render + migrates + deploy) or `.\scripts\nanoclaw-deploy.ps1 -AppName <app>`.
+- **Google Console:** Redirect URI = `https://<BACKEND_URL>/api/auth/google/callback`; JavaScript origins = production `FRONTEND_URL` (exact URL, often team Vercel hostname).
+- **Vercel:** `API_BACKEND_URL` + `JWT_SECRET` via `vercel-env-set-api.ps1` for team projects.

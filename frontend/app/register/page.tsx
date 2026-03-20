@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
+import { API_BACKEND_URL } from "@/lib/backend";
 import RegisterForm from "./RegisterForm";
 
 export default async function RegisterPage() {
@@ -23,7 +24,7 @@ export default async function RegisterPage() {
       <div className="flex-1 flex flex-col items-center justify-center p-6">
         <h1 className="text-4xl font-black text-candy-mint mb-2">Create account</h1>
         <p className="text-gray-600 mb-6">Sign up to borrow books and manage your loans.</p>
-        <RegisterForm />
+        <RegisterForm googleSignInAvailable={Boolean(API_BACKEND_URL)} />
         <p className="mt-6 text-gray-600 text-sm">
           Already have an account? <Link href="/login" className="text-candy-pink font-bold hover:underline">Sign in</Link>
         </p>

@@ -50,5 +50,11 @@ Write-Host "Running DB migration (002_oauth)..." -ForegroundColor Yellow
 if ($LASTEXITCODE -ne 0) { Write-Warning "Migration failed or already applied." }
 
 Write-Host ""
-Write-Host "OAuth setup done. Backend will use new env on next request (or trigger a deploy in Render dashboard)." -ForegroundColor Green
+Write-Host "Triggering Render deploy so new OAuth env vars load..." -ForegroundColor Yellow
+& "$scriptDir\render-deploy.ps1" 2>&1 | Out-Host
+if ($LASTEXITCODE -ne 0) { Write-Warning "Deploy script failed; trigger a manual deploy in Render or run .\scripts\render-deploy.ps1" }
+
+Write-Host ""
+Write-Host "OAuth setup done." -ForegroundColor Green
 Write-Host "Ensure in Google Console: Authorized redirect URI = https://YOUR-BACKEND-URL/api/auth/google/callback" -ForegroundColor Cyan
+Write-Host "Authorized JavaScript origins = your FRONTEND_URL (exact production URL)." -ForegroundColor Cyan

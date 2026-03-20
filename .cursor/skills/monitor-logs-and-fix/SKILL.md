@@ -40,6 +40,11 @@ If `vercel-logs.ps1` hangs, cancel and tell the user to open **Vercel Dashboard 
   - Often: missing `DATABASE_URL` or `JWT_SECRET` on Render, DB connection failure, or unhandled exception in FastAPI. **Fix:** Ensure Render service has env vars (same script that syncs from `.env`); add try/except in backend routes and return 500 with a safe body; check backend logs in Render Dashboard.
 - **Build errors in Vercel logs**
   - Fix the reported TypeScript/import/runtime error in the repo and push; next deploy will pick it up.
+- **Google OAuth / redirect**
+  - **`redirect_uri_mismatch`:** Authorized redirect URI in Google Console must exactly match `https://<backend>/api/auth/google/callback` (scheme, host, path). Fix in Google Cloud → Credentials → OAuth client.
+  - **Callback succeeds but user not logged in / wrong site:** `FRONTEND_URL` on Render must match the URL the user opens (see team Vercel URL vs short domain). Update Render env, redeploy.
+  - **"Google OAuth not configured" (503):** Backend missing `GOOGLE_CLIENT_ID` — run `.\scripts\oauth-setup-render.ps1` from repo root with `.env` filled.
+  - **bcrypt "72 bytes":** Fixed in `auth_bcrypt.py` / `passwordBcrypt.ts`; if logs still show it, confirm latest image deployed (Docker `verify_bcrypt_limits.py`).
 
 ### 3. After fixing
 
