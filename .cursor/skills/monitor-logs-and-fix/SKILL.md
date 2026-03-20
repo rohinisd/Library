@@ -3,6 +3,8 @@ name: monitor-logs-and-fix
 description: When the user reports an error (e.g. "internal server error", "500", "something broke") or asks to "check logs" or "monitor logs", fetch Vercel and Render logs, look for errors, and fix the code automatically.
 ---
 
+> **Before debugging:** if the user asked to **create/deploy a new app**, ensure **`create-app-and-deploy`** steps (migrations, `vercel-env-set-api`, deploy) completed; then use this skill for runtime errors.
+
 # Monitor logs and fix issues
 
 ## When to use

@@ -15,6 +15,12 @@ Copy this **entire folder** to start a new app (e.g. library management). It has
 | **.env.example** | Copy to `.env` and fill in tokens (no secrets in this template) |
 | **INFRASTRUCTURE.md, OAUTH_SETUP.md, DEPLOY_CHECKLIST.md, AUTO_DEPLOY.md** | Docs for PaaS and OAuth |
 
+## Cursor: “create an app and deploy” (next project)
+
+- **Skill:** `.cursor/skills/create-app-and-deploy/SKILL.md` — full runbook (topic → code → git → `nanoclaw-deploy.ps1` → URLs).
+- **Rule:** `.cursor/rules/create-app-from-template.mdc` — tells the agent to use that skill for greenfield MVPs.
+- Supporting skills: `workflow-deploy-vercel-git`, `mvp-paas-auth-oauth`, `monitor-logs-and-fix` (under `.cursor/skills/`).
+
 ## How to use
 
 1. **Copy** this folder to your new project location (e.g. `MyLibraryApp`).

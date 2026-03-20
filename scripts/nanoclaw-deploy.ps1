@@ -86,8 +86,13 @@ if (-not $backendUrl) {
 }
 
 # ----- 5) Vercel frontend -----
-$repoOwner = "rohinisd"; $repoName = "Library"
-if ($repoUrl -match "github\.com/([^/]+)/([^/]+)") { $repoOwner = $matches[1]; $repoName = $matches[2] }
+# Default repo name = AppName (new projects); override from git remote when set
+$repoOwner = "rohinisd"
+$repoName = $AppName
+if ($repoUrl -match "github\.com/([^/]+)/([^/]+)") {
+  $repoOwner = $matches[1]
+  $repoName = $matches[2] -replace '\.git$', ''
+}
 Write-Host "Ensuring Vercel project and env (link repo via API like Habit)..." -ForegroundColor Yellow
 & "$scriptDir\vercel-create-project.ps1" -ProjectName $AppName -RepoOwner $repoOwner -RepoName $repoName -RootDirectory "frontend" 2>&1
 if ($LASTEXITCODE -ne 0) { Write-Host "Vercel create/link failed; continuing with local deploy." -ForegroundColor Yellow; $LASTEXITCODE = 0 }

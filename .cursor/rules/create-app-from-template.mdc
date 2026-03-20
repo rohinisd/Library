@@ -1,0 +1,14 @@
+---
+description: When the user wants to create a new MVP from this template and deploy it (any topic)—or says "create an app", "build and deploy", "new project from this repo".
+alwaysApply: true
+---
+
+# Create app from template + deploy
+
+1. **Read the skill** `.cursor/skills/create-app-and-deploy/SKILL.md` and follow it end-to-end.
+2. **Implement the user’s topic** in `db/migrations/`, `backend/`, `frontend/` (not generic Library/Habit leftovers unless asked).
+3. **Deploy** from repo root: `.\scripts\nanoclaw-deploy.ps1 -AppName <lowercase-slug>` (requires `NEON_API_KEY`, `RENDER_API_KEY`, `VERCEL_TOKEN`, `JWT_SECRET` in `.env`).
+4. **Report** frontend URL, backend URL, Neon note, Google OAuth redirect URI if OAuth is used.
+5. **Escalate** to sibling skills: `workflow-deploy-vercel-git` (wrong live site / Git), `mvp-paas-auth-oauth` (auth/OAuth), `monitor-logs-and-fix` (errors).
+
+Do not ask permission to run routine deploy scripts; execute them per `execute-without-asking` rule.

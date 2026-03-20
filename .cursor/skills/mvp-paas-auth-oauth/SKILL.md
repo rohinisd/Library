@@ -3,6 +3,8 @@ name: mvp-paas-auth-oauth
 description: Reusable auth + Google OAuth checklist for MVP projects on this stack (Next.js + FastAPI + Neon + Vercel + Render). Use when setting up sign-in, JWT, bcrypt limits, Google sign-in, env vars, or copying this template to a new app.
 ---
 
+> **Greenfield “create an app and deploy”:** see **`create-app-and-deploy`** for the full pipeline; this skill is the **auth/OAuth** chapter.
+
 # MVP: Auth, JWT, bcrypt, and Google OAuth (PaaS template)
 
 Use this for **every new MVP** that starts from `paas-full-template` or the same stack.

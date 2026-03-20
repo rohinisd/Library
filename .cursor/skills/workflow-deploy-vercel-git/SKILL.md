@@ -3,6 +3,8 @@ name: workflow-deploy-vercel-git
 description: Full deploy workflow so the live app shows this repo's code—Vercel Git connection, then deploy. Use when the user says features or Sign in/Sign up are missing on the live site, or when adding a rule/skill for "deploy and ensure changes reflect."
 ---
 
+> **New project from scratch (topic + deploy):** use the skill **`create-app-and-deploy`** (`.cursor/skills/create-app-and-deploy/SKILL.md`) first. This skill covers **redeploy / wrong URL / Git link** after the app already exists.
+
 # Workflow: Deploy and ensure live app reflects this repo
 
 ## Goal
