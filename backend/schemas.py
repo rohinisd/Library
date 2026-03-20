@@ -1,5 +1,15 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
+
+# bcrypt limit: password must be <= 72 bytes (UTF-8)
+BCRYPT_MAX_BYTES = 72
+
+
+def _truncate_password_72(password: str) -> str:
+    if not password:
+        return password
+    b = password.encode("utf-8")[:BCRYPT_MAX_BYTES]
+    return b.decode("utf-8", errors="replace")
 
 
 # Auth
@@ -8,10 +18,24 @@ class RegisterBody(BaseModel):
     password: str
     displayName: Optional[str] = None
 
+    @field_validator("password", mode="before")
+    @classmethod
+    def truncate_password(cls, v: str) -> str:
+        if isinstance(v, str):
+            return _truncate_password_72(v)
+        return v
+
 
 class LoginBody(BaseModel):
     username: str
     password: str
+
+    @field_validator("password", mode="before")
+    @classmethod
+    def truncate_password(cls, v: str) -> str:
+        if isinstance(v, str):
+            return _truncate_password_72(v)
+        return v
 
 
 class AuthResponse(BaseModel):

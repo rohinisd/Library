@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { setSession, setTokenCookie } from "@/lib/auth";
 import { useBackend } from "@/lib/backend";
 import { fetchBackend } from "@/lib/proxy";
+import { passwordForBcryptJs } from "@/lib/passwordBcrypt";
 
 export async function POST(req: Request) {
   if (!useBackend() && !process.env.DATABASE_URL) {
@@ -48,7 +49,7 @@ export async function POST(req: Request) {
   try {
     const { username, displayName, password } = await req.json();
     if (!username || !password) return NextResponse.json({ error: "Username and password required" }, { status: 400 });
-    const hash = await bcrypt.hash(password, 10);
+    const hash = await bcrypt.hash(passwordForBcryptJs(password), 10);
     const rows = await sql`
       INSERT INTO users (username, password_hash, display_name)
       VALUES (${username}, ${hash}, ${displayName || username})

@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { setSession, setTokenCookie } from "@/lib/auth";
 import { useBackend } from "@/lib/backend";
 import { fetchBackend } from "@/lib/proxy";
+import { passwordForBcryptJs } from "@/lib/passwordBcrypt";
 
 export async function POST(req: Request) {
   if (!useBackend() && !process.env.DATABASE_URL) {
@@ -44,7 +45,7 @@ export async function POST(req: Request) {
     if (!username || !password) return NextResponse.json({ error: "Username and password required" }, { status: 400 });
     const rows = await sql`SELECT id, username, display_name, password_hash FROM users WHERE username = ${username} LIMIT 1`;
     const user = rows[0] as { id: string; username: string; display_name: string | null; password_hash: string } | undefined;
-    if (!user || !(await bcrypt.compare(password, user.password_hash)))
+    if (!user || !(await bcrypt.compare(passwordForBcryptJs(password), user.password_hash)))
       return NextResponse.json({ error: "Wrong username or password" }, { status: 401 });
     await setSession(user.id);
     return NextResponse.json({ ok: true });
