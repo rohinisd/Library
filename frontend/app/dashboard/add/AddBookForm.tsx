@@ -11,6 +11,11 @@ export default function AddBookForm() {
   const [isbn, setIsbn] = useState("");
   const [category, setCategory] = useState("");
   const [totalCopies, setTotalCopies] = useState("1");
+  const [description, setDescription] = useState("");
+  const [publicationYear, setPublicationYear] = useState("");
+  const [publisher, setPublisher] = useState("");
+  const [language, setLanguage] = useState("English");
+  const [shelfLocation, setShelfLocation] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -19,16 +24,23 @@ export default function AddBookForm() {
     setError("");
     setLoading(true);
     try {
+      const body: Record<string, unknown> = {
+        title,
+        author,
+        isbn: isbn || undefined,
+        category: category || undefined,
+        totalCopies: totalCopies ? parseInt(totalCopies, 10) : 1,
+        description: description || undefined,
+        publisher: publisher || undefined,
+        language: language || "English",
+        shelfLocation: shelfLocation || undefined,
+      };
+      const y = publicationYear.trim();
+      if (y) body.publicationYear = parseInt(y, 10);
       const res = await fetch("/api/books", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          author,
-          isbn: isbn || undefined,
-          category: category || undefined,
-          totalCopies: totalCopies ? parseInt(totalCopies, 10) : 1,
-        }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -73,25 +85,80 @@ export default function AddBookForm() {
           className="w-full px-4 py-3 rounded-xl border-2 border-candy-lavender focus:border-candy-pink outline-none"
         />
       </div>
-      <div>
-        <label className="block font-bold text-gray-700 mb-1">ISBN (optional)</label>
-        <input
-          type="text"
-          value={isbn}
-          onChange={(e) => setIsbn(e.target.value)}
-          placeholder="e.g. 978-0-..."
-          className="w-full px-4 py-3 rounded-xl border-2 border-candy-lavender focus:border-candy-pink outline-none"
-        />
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="block font-bold text-gray-700 mb-1">ISBN (optional)</label>
+          <input
+            type="text"
+            value={isbn}
+            onChange={(e) => setIsbn(e.target.value)}
+            placeholder="e.g. 978-0-..."
+            className="w-full px-4 py-3 rounded-xl border-2 border-candy-lavender focus:border-candy-pink outline-none"
+          />
+        </div>
+        <div>
+          <label className="block font-bold text-gray-700 mb-1">Category</label>
+          <input
+            type="text"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            placeholder="e.g. Fiction, Technology"
+            className="w-full px-4 py-3 rounded-xl border-2 border-candy-lavender focus:border-candy-pink outline-none"
+          />
+        </div>
       </div>
       <div>
-        <label className="block font-bold text-gray-700 mb-1">Category (optional)</label>
-        <input
-          type="text"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          placeholder="e.g. Fiction, Tech"
-          className="w-full px-4 py-3 rounded-xl border-2 border-candy-lavender focus:border-candy-pink outline-none"
+        <label className="block font-bold text-gray-700 mb-1">Description / summary</label>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={3}
+          placeholder="Optional annotation for the catalog (OPAC-style)"
+          className="w-full px-4 py-3 rounded-xl border-2 border-candy-lavender focus:border-candy-pink outline-none resize-y min-h-[80px]"
         />
+      </div>
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="block font-bold text-gray-700 mb-1">Publication year</label>
+          <input
+            type="number"
+            value={publicationYear}
+            onChange={(e) => setPublicationYear(e.target.value)}
+            placeholder="e.g. 2020"
+            className="w-full px-4 py-3 rounded-xl border-2 border-candy-lavender focus:border-candy-pink outline-none"
+          />
+        </div>
+        <div>
+          <label className="block font-bold text-gray-700 mb-1">Publisher</label>
+          <input
+            type="text"
+            value={publisher}
+            onChange={(e) => setPublisher(e.target.value)}
+            placeholder="Publisher name"
+            className="w-full px-4 py-3 rounded-xl border-2 border-candy-lavender focus:border-candy-pink outline-none"
+          />
+        </div>
+      </div>
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="block font-bold text-gray-700 mb-1">Language</label>
+          <input
+            type="text"
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border-2 border-candy-lavender focus:border-candy-pink outline-none"
+          />
+        </div>
+        <div>
+          <label className="block font-bold text-gray-700 mb-1">Shelf / call number</label>
+          <input
+            type="text"
+            value={shelfLocation}
+            onChange={(e) => setShelfLocation(e.target.value)}
+            placeholder="e.g. FIC-LEE-004"
+            className="w-full px-4 py-3 rounded-xl border-2 border-candy-lavender focus:border-candy-pink outline-none"
+          />
+        </div>
       </div>
       <div>
         <label className="block font-bold text-gray-700 mb-1">Copies</label>

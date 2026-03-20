@@ -1,12 +1,13 @@
 import os
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from database import get_pool, close_pool
-from routers import auth, books, loans
+from dependencies import get_db_pool
+from routers import auth, books, loans, library_public
 
 
 @asynccontextmanager
@@ -49,6 +50,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(books.router)
 app.include_router(loans.router)
+app.include_router(library_public.router)
 
 
 @app.get("/api/health")
@@ -57,17 +59,10 @@ def health():
 
 
 @app.get("/api/health/db")
-async def health_db():
-    """Check DB connection and users table. Returns error detail for debugging."""
-    try:
-        pool = await get_pool()
-        row = await pool.fetchrow("SELECT 1 FROM users LIMIT 1")
-        return {"ok": True, "db": "connected", "users_table": row is not None}
-    except Exception as e:
-        return JSONResponse(
-            status_code=503,
-            content={"ok": False, "error": str(e), "hint": "Set DATABASE_URL on Render and run migrations."},
-        )
+async def health_db(pool=Depends(get_db_pool)):
+    """Check DB connection and users table. Uses FastAPI dependency for pool."""
+    row = await pool.fetchrow("SELECT 1 FROM users LIMIT 1")
+    return {"ok": True, "db": "connected", "users_table": row is not None}
 
 
 if __name__ == "__main__":

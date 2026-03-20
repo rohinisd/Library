@@ -15,7 +15,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   }
   if (!process.env.DATABASE_URL) return NextResponse.json({ error: "Book not found" }, { status: 404 });
   try {
-    const rows = await sql`SELECT id, isbn, title, author, category, total_copies, available_copies, created_at, updated_at
+    const rows = await sql`SELECT id, isbn, title, author, category, total_copies, available_copies, created_at, updated_at,
+      description, publication_year, publisher, language, shelf_location
       FROM books WHERE id = ${id}::uuid LIMIT 1`;
     if (!rows.length) return NextResponse.json({ error: "Book not found" }, { status: 404 });
     const r = rows[0] as Record<string, unknown>;
@@ -27,6 +28,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       category: r.category,
       totalCopies: r.total_copies,
       availableCopies: r.available_copies,
+      description: r.description,
+      publicationYear: r.publication_year,
+      publisher: r.publisher,
+      language: r.language,
+      shelfLocation: r.shelf_location,
     });
   } catch {
     return NextResponse.json({ error: "Book not found" }, { status: 404 });

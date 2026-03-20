@@ -54,6 +54,11 @@ class BookCreateBody(BaseModel):
     isbn: Optional[str] = None
     category: Optional[str] = None
     totalCopies: Optional[int] = 1
+    description: Optional[str] = None
+    publicationYear: Optional[int] = None
+    publisher: Optional[str] = None
+    language: Optional[str] = "English"
+    shelfLocation: Optional[str] = None
 
 
 class BookUpdateBody(BaseModel):
@@ -61,6 +66,11 @@ class BookUpdateBody(BaseModel):
     author: Optional[str] = None
     category: Optional[str] = None
     totalCopies: Optional[int] = None
+    description: Optional[str] = None
+    publicationYear: Optional[int] = None
+    publisher: Optional[str] = None
+    language: Optional[str] = None
+    shelfLocation: Optional[str] = None
 
 
 class BookResponse(BaseModel):
@@ -73,6 +83,11 @@ class BookResponse(BaseModel):
     availableCopies: int
     createdAt: Optional[str] = None
     updatedAt: Optional[str] = None
+    description: Optional[str] = None
+    publicationYear: Optional[int] = None
+    publisher: Optional[str] = None
+    language: Optional[str] = None
+    shelfLocation: Optional[str] = None
 
 
 # Loans

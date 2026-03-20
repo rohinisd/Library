@@ -122,6 +122,7 @@ If **`FRONTEND_URL`** is wrong, the user lands on the wrong host or gets CORS/co
 - `OAUTH_SETUP.md` — step-by-step Google Console screenshots-style instructions
 - `VERCEL_ENV.md` — Vercel env vars
 - `AUTOMATION_HURDLES.md` — platform quirks
+- `LIBRARY_REQUIREMENTS.md` — how the Library MVP maps to typical ILS expectations (catalog, circulation, seed data)
 
 ## Related skills
 

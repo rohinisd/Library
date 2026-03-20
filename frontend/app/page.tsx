@@ -1,9 +1,26 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { getSession } from "@/lib/auth";
+
+async function getLibraryStats() {
+  try {
+    const h = await headers();
+    const host = h.get("x-forwarded-host") || h.get("host") || "localhost:3000";
+    const proto = h.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
+    const res = await fetch(`${proto}://${host}/api/library/stats`, { next: { revalidate: 60 } });
+    if (!res.ok) throw new Error();
+    return await res.json();
+  } catch {
+    return { totalTitles: 0, totalCopies: 0, availableCopies: 0, categoryCount: 0 };
+  }
+}
+
 export default async function HomePage() {
   const session = await getSession();
   if (session) redirect("/dashboard");
+
+  const stats = await getLibraryStats();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -33,6 +50,26 @@ export default async function HomePage() {
         <p className="text-xl text-gray-600 max-w-xl mb-10">
           Your library in one place. Browse the catalog, check out books, and never miss a due date.
         </p>
+        {(stats.totalTitles > 0 || stats.totalCopies > 0) && (
+          <div className="flex flex-wrap justify-center gap-4 md:gap-8 mb-10 text-center">
+            <div className="bg-white/60 rounded-2xl px-6 py-4 border border-gray-200 shadow-sm">
+              <p className="text-3xl font-black text-candy-pink">{stats.totalTitles}</p>
+              <p className="text-sm text-gray-600 font-medium">titles</p>
+            </div>
+            <div className="bg-white/60 rounded-2xl px-6 py-4 border border-gray-200 shadow-sm">
+              <p className="text-3xl font-black text-candy-mint">{stats.totalCopies}</p>
+              <p className="text-sm text-gray-600 font-medium">copies in library</p>
+            </div>
+            <div className="bg-white/60 rounded-2xl px-6 py-4 border border-gray-200 shadow-sm">
+              <p className="text-3xl font-black text-gray-800">{stats.availableCopies}</p>
+              <p className="text-sm text-gray-600 font-medium">available now</p>
+            </div>
+            <div className="bg-white/60 rounded-2xl px-6 py-4 border border-gray-200 shadow-sm">
+              <p className="text-3xl font-black text-candy-peach">{stats.categoryCount}</p>
+              <p className="text-sm text-gray-600 font-medium">categories</p>
+            </div>
+          </div>
+        )}
         <div className="flex flex-wrap gap-4 justify-center">
           <Link
             href="/login"
