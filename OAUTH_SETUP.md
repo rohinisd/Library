@@ -2,6 +2,8 @@
 
 The app shows **Sign in with Google** on `/login` and **Continue with Google** on `/register` when the frontend has **`API_BACKEND_URL`** set (external backend). Same OAuth callback creates or links the user.
 
+**Authorized JavaScript origins:** use the URLs where your **app** runs (e.g. `https://your-app-xxx.vercel.app`, `http://localhost:3000`). **Do not** put `https://console.cloud.google.com` — that is the Google Cloud admin site, not your app.
+
 This is a **one-time setup** per app. After you complete it, "Sign in with Google" works on your frontend and backend.
 
 **Can this be fully automated?** Google does **not** provide a public CLI or API to create the OAuth client. You do **Part A** and **Part B** once. Then run **`.\scripts\oauth-setup-render.ps1`** to push the values to Render and run the DB migration.

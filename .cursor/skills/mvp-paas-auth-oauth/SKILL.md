@@ -51,6 +51,22 @@ Google has **no API** to create clients programmatically — human step in the b
    - Local: `http://localhost:10000/api/auth/google/callback`
 4. Copy **Client ID** and **Client secret** into `.env` as `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
 
+### Authorized JavaScript origins — common mistake
+
+- **Do not** use `https://console.cloud.google.com` — that is the admin UI, not your app. Google Sign-In will fail or behave oddly for users.
+- **Do** list every URL where the **browser** loads your Next.js app, e.g.  
+  `https://<your-project>-<team>.vercel.app` and optionally `https://short-name.vercel.app` if that domain points here.  
+  Add `http://localhost:3000` for local dev.
+
+### After you have Client ID + Secret (next steps)
+
+1. Set in **repo root `.env`** (never commit `.env`):  
+   `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and **`FRONTEND_URL`** = the **exact** URL users open in the browser after deploy (usually the long Vercel team URL, not necessarily `projectName.vercel.app`).
+2. Run **`.\scripts\oauth-setup-render.ps1`** — pushes OAuth + `FRONTEND_URL` to Render, runs DB migration if needed, triggers **Render deploy**.
+3. Confirm **Vercel** has `API_BACKEND_URL` + `JWT_SECRET` (`.\scripts\vercel-env-set-api.ps1 -ProjectName <app>`), then redeploy frontend if you changed env.
+4. Test: **Sign in with Google** on `/login` — should return to `FRONTEND_URL/api/auth/oauth-callback?token=...` then dashboard.
+5. If the client secret was ever pasted in chat or a ticket, **rotate** it in Google Console → Credentials → client → Reset secret, update `.env`, run `oauth-setup-render.ps1` again.
+
 ## Scripts (automate what can be automated)
 
 | Script | Purpose |
